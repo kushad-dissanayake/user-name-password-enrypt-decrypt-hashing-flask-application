@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <h2>Welcome, {{ username }}</h2>
+    <div class="message-container">
+        <h3>Send a Message</h3>
+        <form id="sendMessageForm">
+            <textarea name="message" rows="4" cols="50" placeholder="Enter your message here..." required></textarea>
+            <br>
+            <button type="submit">Send</button>
+        </form>
+        <div id="sendMessageResult"></div>
+
+        <h3>Decrypt a Message</h3>
+        <form id="decryptMessageForm">
+            <textarea id="encryptedMessage" name="encrypted_message" rows="4" cols="50" placeholder="Enter the encrypted message here..." required></textarea>
+            <br>
+            <button type="submit">Decrypt</button>
+        </form>
+        <div id="decryptMessageResult"></div>
+    </div>
+    <script>
+        document.getElementById('sendMessageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            fetch('/home', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('sendMessageResult').innerHTML = `<strong>Encrypted Message:</strong> ${data.encrypted_message}`;
+                document.getElementById('encryptedMessage').value = data.encrypted_message;  // Auto-fill the encrypted message field
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('decryptMessageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            fetch('/home', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('decryptMessageResult').innerHTML = `<strong>Error:</strong> ${data.error}`;
+                } else {
+                    document.getElementById('decryptMessageResult').innerHTML = `<strong>Decrypted Message:</strong> ${data.decrypted_message}`;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+{% endblock %}
